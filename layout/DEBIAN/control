@@ -1,0 +1,12 @@
+Package: com.rpetrich.pebbleactivator
+Name: PebbleActivator
+Version: 0.1
+Architecture: iphoneos-arm
+Description: Integrate Pebble smart watch with Activator
+Depiction: http://rpetri.ch/cydia/pebbleactivator/
+Website: http://rpetri.ch/cydia/pebbleactivator/
+Maintainer: Ryan Petrich <rpetrich+pebbleactivator@gmail.com>
+Author: Ryan Petrich <rpetrich+pebbleactivator@gmail.com>
+Depends: mobilesubstrate, preferenceloader (>= 2.2), libactivator (>= 1.7.4), firmware (>= 6), firmware (<< 6.2)
+Section: Tweaks
+dev: rpetrich

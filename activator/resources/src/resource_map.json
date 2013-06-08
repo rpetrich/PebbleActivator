@@ -1,0 +1,16 @@
+{
+    "friendlyVersion": "1.0", 
+    "media": [
+        {
+            "defName": "IMAGE_ICON", 
+            "file": "img/icon.png", 
+            "type": "png"
+        },
+        {
+            "defName": "IMAGE_ICON_TINY", 
+            "file": "img/icon_tiny.png", 
+            "type": "png"
+        }
+    ], 
+    "versionDefName": "ACTIVATOR_APP_RESOURCES"
+}
