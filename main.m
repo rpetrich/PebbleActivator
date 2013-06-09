@@ -7,6 +7,10 @@
 
 #import "common.h"
 
+#define PAEventNameTopButton @"com.rpetrich.pebbleactivator.top-button"
+#define PAEventNameMiddleButton @"com.rpetrich.pebbleactivator.middle-button"
+#define PAEventNameBottomButton @"com.rpetrich.pebbleactivator.bottom-button"
+
 @interface PebbleSettingsViewController : LASettingsViewController
 @end
 
@@ -24,11 +28,11 @@
 {
 	switch (indexPath.row) {
 		case 0:
-			return @"com.rpetrich.pebbleactivator.top-button";
+			return PAEventNameTopButton;
 		case 1:
-			return @"com.rpetrich.pebbleactivator.middle-button";
+			return PAEventNameMiddleButton;
 		case 2:
-			return @"com.rpetrich.pebbleactivator.bottom-button";
+			return PAEventNameBottomButton;
 		default:
 			return nil;
 	}
@@ -77,6 +81,7 @@
 - (void)connectToWatch:(PBWatch *)watch;
 - (void)disconnectFromWatch:(PBWatch *)watch;
 @property (nonatomic, readonly) NSArray *connectedWatches;
+- (void)pushListenerTitlesToWatch:(PBWatch *)watch;
 
 - (void)installLatestVersionOfApp;
 
@@ -107,13 +112,13 @@
 				NSString *eventName;
 				switch ([keyPressed integerValue]) {
 					case WATCH_KEY_PRESSED_UP:
-						eventName = @"com.rpetrich.pebbleactivator.top-button";
+						eventName = PAEventNameTopButton;
 						break;
 					case WATCH_KEY_PRESSED_SELECT:
-						eventName = @"com.rpetrich.pebbleactivator.middle-button";
+						eventName = PAEventNameMiddleButton;
 						break;
 					case WATCH_KEY_PRESSED_DOWN:
-						eventName = @"com.rpetrich.pebbleactivator.bottom-button";
+						eventName = PAEventNameBottomButton;
 						break;
 					default:
 						eventName = nil;
@@ -125,7 +130,7 @@
 				}
 			}
 			if ([update objectForKey:@(WATCH_REQUEST_TEXT)]) {
-				[watch appMessagesPushUpdate:@{ @(ACTIVATOR_SET_TEXT): @"Activator" } onSent:NULL];
+				[self pushListenerTitlesToWatch:watch];
 			}
 			return YES;
 		} copy];
@@ -225,7 +230,7 @@
 			if ([UIApplication sharedApplication].applicationState == UIApplicationStateActive) {
 				[self launchAppOrInstallOnWatch:watch];
 			}
-			[watch appMessagesPushUpdate:@{ @(ACTIVATOR_SET_TEXT): @"Activator" } onSent:NULL];
+			[self pushListenerTitlesToWatch:watch];
 		}
 	}];
 }
@@ -247,6 +252,26 @@
 		[result addObject:key[0]];
 	}
 	return result;
+}
+
+static inline NSString *AssignedListenerTitleForEvent(NSString *eventName, NSString *eventMode)
+{
+	LAEvent *event = [LAEvent eventWithName:eventName mode:eventMode];
+	NSString *listenerName = [LASharedActivator assignedListenerNameForEvent:event];
+	if (!listenerName)
+		return @"(unassigned)";
+	return [LASharedActivator localizedTitleForListenerName:listenerName] ?: @"";
+}
+
+- (void)pushListenerTitlesToWatch:(PBWatch *)watch
+{
+	NSString *eventMode = LASharedActivator.currentEventMode;
+	NSDictionary *update = @{
+		@(ACTIVATOR_SET_TEXT): AssignedListenerTitleForEvent(PAEventNameTopButton, eventMode),
+		@(ACTIVATOR_SET_TEXT_MIDDLE): AssignedListenerTitleForEvent(PAEventNameMiddleButton, eventMode),
+		@(ACTIVATOR_SET_TEXT_BOTTOM): AssignedListenerTitleForEvent(PAEventNameBottomButton, eventMode)
+	};
+	[watch appMessagesPushUpdate:update onSent:NULL];
 }
 
 // PBPebbleCentralDelegate

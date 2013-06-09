@@ -13,6 +13,8 @@ PBL_APP_INFO(MY_UUID, "Activator", "Ryan Petrich", 0x1, 0x0, RESOURCE_ID_IMAGE_I
 static struct WeatherData {
 	Window window;
 	TextLayer text_layer;
+	TextLayer text_layer_middle;
+	TextLayer text_layer_bottom;
 	BitmapLayer icon_layer;
 	GBitmap icon_bitmap;
 	uint8_t bitmap_data[BITMAP_BUFFER_BYTES];
@@ -93,7 +95,9 @@ void click_config_provider(ClickConfig **config, Window *window)
 	config[BUTTON_ID_DOWN]->click.repeat_interval_ms = 100;
 }
 
-static char string_buffer[256];
+static char text_layer_buffer[256];
+static char text_layer_middle_buffer[256];
+static char text_layer_bottom_buffer[256];
 
 static void in_recieved_handler(DictionaryIterator *received, void *context)
 {
@@ -104,9 +108,19 @@ static void in_recieved_handler(DictionaryIterator *received, void *context)
 				send_cmd(WATCH_RETURN_VERSION, WATCH_VERSION_CURRENT);
 				break;
 			case ACTIVATOR_SET_TEXT:
-				strncpy(string_buffer, tuple->value->cstring, sizeof(string_buffer));
-				text_layer_set_text(&s_data.text_layer, string_buffer);
+				strncpy(text_layer_buffer, tuple->value->cstring, sizeof(text_layer_buffer));
+				text_layer_set_text(&s_data.text_layer, text_layer_buffer);
 				layer_mark_dirty(&s_data.text_layer.layer);
+				break;
+			case ACTIVATOR_SET_TEXT_MIDDLE:
+				strncpy(text_layer_middle_buffer, tuple->value->cstring, sizeof(text_layer_middle_buffer));
+				text_layer_set_text(&s_data.text_layer_middle, text_layer_middle_buffer);
+				layer_mark_dirty(&s_data.text_layer_middle.layer);
+				break;
+			case ACTIVATOR_SET_TEXT_BOTTOM:
+				strncpy(text_layer_bottom_buffer, tuple->value->cstring, sizeof(text_layer_bottom_buffer));
+				text_layer_set_text(&s_data.text_layer_bottom, text_layer_bottom_buffer);
+				layer_mark_dirty(&s_data.text_layer_bottom.layer);
 				break;
 		}
 	} while((tuple = dict_read_next(received)));
@@ -118,8 +132,8 @@ static void in_dropped_handler(void *context, AppMessageResult reason)
 
 static void out_failed_handler(DictionaryIterator *failed, AppMessageResult reason, void *context)
 {
-	text_layer_set_text(&s_data.text_layer, "Failed to send!");
-	layer_mark_dirty(&s_data.text_layer.layer);
+	text_layer_set_text(&s_data.text_layer_middle, "Failed to send!");
+	layer_mark_dirty(&s_data.text_layer_middle.layer);
 }
 
 static AppMessageCallbacksNode app_callbacks = {
@@ -142,19 +156,40 @@ static void app_init(AppContextRef c)
 	window_set_background_color(window, GColorBlack);
 	window_set_fullscreen(window, true);
 
-	GRect icon_rect = (GRect) {(GPoint) {32, 20}, (GSize) { 80, 80 }};
+	/*GRect icon_rect = (GRect) {(GPoint) {32, 20}, (GSize) { 80, 80 }};
 	bitmap_layer_init(&s_data.icon_layer, icon_rect);
 	load_bitmap(RESOURCE_ID_IMAGE_ICON);
 	bitmap_layer_set_bitmap(&s_data.icon_layer, &s_data.icon_bitmap);
-	layer_add_child(&window->layer, &s_data.icon_layer.layer);
+	layer_add_child(&window->layer, &s_data.icon_layer.layer);*/
 
-	text_layer_init(&s_data.text_layer, GRect(0, 110, 144, 68));
+	GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
+
+	text_layer_init(&s_data.text_layer, GRect(0, 10, 144, 68));
 	text_layer_set_text_color(&s_data.text_layer, GColorWhite);
 	text_layer_set_background_color(&s_data.text_layer, GColorClear);
-	text_layer_set_font(&s_data.text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+	text_layer_set_font(&s_data.text_layer, font);
 	text_layer_set_text_alignment(&s_data.text_layer, GTextAlignmentCenter);
 	text_layer_set_text(&s_data.text_layer, "");
+	text_layer_set_overflow_mode(&s_data.text_layer, GTextOverflowModeTrailingEllipsis);
 	layer_add_child(&window->layer, &s_data.text_layer.layer);
+
+	text_layer_init(&s_data.text_layer_middle, GRect(0, 70, 144, 68));
+	text_layer_set_text_color(&s_data.text_layer_middle, GColorWhite);
+	text_layer_set_background_color(&s_data.text_layer_middle, GColorClear);
+	text_layer_set_font(&s_data.text_layer_middle, font);
+	text_layer_set_text_alignment(&s_data.text_layer_middle, GTextAlignmentCenter);
+	text_layer_set_text(&s_data.text_layer_middle, "Loading...");
+	text_layer_set_overflow_mode(&s_data.text_layer_middle, GTextOverflowModeTrailingEllipsis);
+	layer_add_child(&window->layer, &s_data.text_layer_middle.layer);
+
+	text_layer_init(&s_data.text_layer_bottom, GRect(0, 130, 144, 68));
+	text_layer_set_text_color(&s_data.text_layer_bottom, GColorWhite);
+	text_layer_set_background_color(&s_data.text_layer_bottom, GColorClear);
+	text_layer_set_font(&s_data.text_layer_bottom, font);
+	text_layer_set_text_alignment(&s_data.text_layer_bottom, GTextAlignmentCenter);
+	text_layer_set_text(&s_data.text_layer_bottom, "");
+	text_layer_set_overflow_mode(&s_data.text_layer_bottom, GTextOverflowModeTrailingEllipsis);
+	layer_add_child(&window->layer, &s_data.text_layer_bottom.layer);
 
 	window_set_click_config_provider(window, (ClickConfigProvider) click_config_provider);
 	window_stack_push(window, true);
@@ -175,7 +210,7 @@ void pbl_main(void *params)
 		.deinit_handler = &app_deinit,
 		.messaging_info = {
 			.buffer_sizes = {
-				.inbound = 64,
+				.inbound = 512,
 				.outbound = 16,
 			},
   		}
