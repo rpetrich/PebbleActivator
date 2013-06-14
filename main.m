@@ -15,6 +15,19 @@
 #define PAEventNameHoldMiddleButton @"com.rpetrich.pebbleactivator.middle-button-hold"
 #define PAEventNameHoldBottomButton @"com.rpetrich.pebbleactivator.bottom-button-hold"
 
+@interface LASettingsViewController (Private)
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;
+@end
+
+@interface LSApplicationProxy : NSObject
++ (LSApplicationProxy *)applicationProxyForIdentifier:(NSString *)identifier;
+@end
+
+@interface UIDocumentInteractionController (Private)
+- (void)_openDocumentWithApplication:(LSApplicationProxy *)application;
+@end
+
 @interface PebbleSettingsViewController : LASettingsViewController
 @end
 
