@@ -11,6 +11,10 @@
 #define PAEventNameMiddleButton @"com.rpetrich.pebbleactivator.middle-button"
 #define PAEventNameBottomButton @"com.rpetrich.pebbleactivator.bottom-button"
 
+#define PAEventNameHoldTopButton @"com.rpetrich.pebbleactivator.top-button-hold"
+#define PAEventNameHoldMiddleButton @"com.rpetrich.pebbleactivator.middle-button-hold"
+#define PAEventNameHoldBottomButton @"com.rpetrich.pebbleactivator.bottom-button-hold"
+
 @interface PebbleSettingsViewController : LASettingsViewController
 @end
 
@@ -26,21 +30,49 @@
 
 - (NSString *)eventNameForIndexPath:(NSIndexPath *)indexPath
 {
-	switch (indexPath.row) {
+	switch (indexPath.section) {
 		case 0:
-			return PAEventNameTopButton;
+			switch (indexPath.row) {
+				case 0:
+					return PAEventNameTopButton;
+				case 1:
+					return PAEventNameMiddleButton;
+				case 2:
+					return PAEventNameBottomButton;
+				default:
+					return nil;
+			}
 		case 1:
-			return PAEventNameMiddleButton;
-		case 2:
-			return PAEventNameBottomButton;
+			switch (indexPath.row) {
+				case 0:
+					return PAEventNameHoldTopButton;
+				case 1:
+					return PAEventNameHoldMiddleButton;
+				case 2:
+					return PAEventNameHoldBottomButton;
+				default:
+					return nil;
+			}
 		default:
 			return nil;
 	}
 }
 
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+	return 2;
+}
+
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-	return @"Button Events";
+	switch (section) {
+		case 0:
+			return @"Press Events";
+		case 1:
+			return @"Hold Events";
+		default:
+			return nil;
+	}
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -119,6 +151,15 @@
 						break;
 					case WATCH_KEY_PRESSED_DOWN:
 						eventName = PAEventNameBottomButton;
+						break;
+					case WATCH_KEY_HELD_UP:
+						eventName = PAEventNameHoldTopButton;
+						break;
+					case WATCH_KEY_HELD_SELECT:
+						eventName = PAEventNameHoldMiddleButton;
+						break;
+					case WATCH_KEY_HELD_DOWN:
+						eventName = PAEventNameHoldBottomButton;
 						break;
 					default:
 						eventName = nil;

@@ -1,0 +1,5 @@
+{
+	title = "Hold Middle Button";
+	group = "Pebble";
+	description = "Hold middle button on watch";
+}

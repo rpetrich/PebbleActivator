@@ -65,12 +65,28 @@ void up_single_click_handler(ClickRecognizerRef recognizer, Window *window)
 	send_cmd(WATCH_KEY_PRESSED, WATCH_KEY_PRESSED_UP);
 }
 
+void up_hold_handler(ClickRecognizerRef recognizer, Window *window)
+{
+	(void)recognizer;
+	(void)window;
+	
+	send_cmd(WATCH_KEY_PRESSED, WATCH_KEY_HELD_UP);
+}
+
 void select_single_click_handler(ClickRecognizerRef recognizer, Window *window)
 {
 	(void)recognizer;
 	(void)window;
 	
 	send_cmd(WATCH_KEY_PRESSED, WATCH_KEY_PRESSED_SELECT);
+}
+
+void select_hold_handler(ClickRecognizerRef recognizer, Window *window)
+{
+	(void)recognizer;
+	(void)window;
+	
+	send_cmd(WATCH_KEY_PRESSED, WATCH_KEY_HELD_SELECT);
 }
 
 void down_single_click_handler(ClickRecognizerRef recognizer, Window *window)
@@ -81,18 +97,26 @@ void down_single_click_handler(ClickRecognizerRef recognizer, Window *window)
 	send_cmd(WATCH_KEY_PRESSED, WATCH_KEY_PRESSED_DOWN);
 }
 
+void down_hold_handler(ClickRecognizerRef recognizer, Window *window)
+{
+	(void)recognizer;
+	(void)window;
+	
+	send_cmd(WATCH_KEY_PRESSED, WATCH_KEY_HELD_DOWN);
+}
+
 void click_config_provider(ClickConfig **config, Window *window)
 {
 	(void)window;
 	
 	config[BUTTON_ID_UP]->click.handler = (ClickHandler) up_single_click_handler;
-	config[BUTTON_ID_UP]->click.repeat_interval_ms = 100;
+	config[BUTTON_ID_UP]->long_click.handler = (ClickHandler) up_hold_handler;
 	
 	config[BUTTON_ID_SELECT]->click.handler = (ClickHandler) select_single_click_handler;
-	config[BUTTON_ID_SELECT]->click.repeat_interval_ms = 100;
+	config[BUTTON_ID_SELECT]->long_click.handler = (ClickHandler) select_hold_handler;
 	
 	config[BUTTON_ID_DOWN]->click.handler = (ClickHandler) down_single_click_handler;
-	config[BUTTON_ID_DOWN]->click.repeat_interval_ms = 100;
+	config[BUTTON_ID_DOWN]->long_click.handler = (ClickHandler) down_hold_handler;
 }
 
 static char text_layer_buffer[256];
