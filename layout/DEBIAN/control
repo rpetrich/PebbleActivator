@@ -7,6 +7,6 @@ Depiction: http://rpetri.ch/cydia/pebbleactivator/
 Website: http://rpetri.ch/cydia/pebbleactivator/
 Maintainer: Ryan Petrich <rpetrich+pebbleactivator@gmail.com>
 Author: Ryan Petrich <rpetrich+pebbleactivator@gmail.com>
-Depends: mobilesubstrate, preferenceloader (>= 2.2), libactivator (>= 1.7.4), firmware (>= 6), firmware (<< 6.2)
+Depends: mobilesubstrate, preferenceloader (>= 2.2), libactivator (>= 1.7.5~beta7), firmware (>= 6), firmware (<< 6.2)
 Section: Tweaks
 dev: rpetrich
